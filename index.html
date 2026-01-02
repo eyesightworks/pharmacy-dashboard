@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pharmacy Dashboard Demo</title>
+
+<!-- ================== STYLES ================== -->
+<style>
+:root {
+  --primary:#0d6efd; --secondary:#198754; --danger:#dc3545;
+  --bg:#f4f6f9; --card:#fff; --text:#212529; --success:#28a745; --warning:#ffc107;
+}
+
+*{box-sizing:border-box;font-family:"Segoe UI",system-ui,sans-serif;}
+body{margin:0;background:var(--bg);color:var(--text);}
+
+/* Layout */
+.app{display:flex;min-height:100vh;}
+.sidebar{width:250px;background:#0b1c2d;color:#fff;padding:20px;transition:transform .3s ease;}
+.sidebar h2{text-align:center;margin-bottom:30px;}
+.sidebar a{display:block;padding:12px;margin-bottom:8px;color:#cfd8dc;text-decoration:none;border-radius:6px;}
+.sidebar a:hover,.sidebar a.active{background:var(--primary);color:#fff;}
+.main{flex:1;padding:20px;}
+.topbar{display:flex;justify-content:space-between;align-items:center;}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-top:20px;}
+.card{background:var(--card);padding:20px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,.05);}
+.card h3{margin:0;font-size:16px;color:#6c757d;}
+.card p{font-size:26px;margin:5px 0 0;font-weight:bold;}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin-top:15px;background:#fff;border-radius:10px;overflow:hidden;}
+th,td{padding:12px;border-bottom:1px solid #eee;cursor:pointer;}
+th{background:#f1f3f5;text-align:left;}
+
+/* Forms */
+input,button{padding:10px;margin-top:8px;width:100%;}
+button{background:var(--primary);color:#fff;border:none;border-radius:6px;cursor:pointer;}
+button.danger{background:var(--danger);}
+button.success{background:var(--success);}
+button.warning{background:var(--warning);}
+.hidden{display:none;}
+
+/* Login */
+.login{max-width:380px;margin:80px auto;background:#fff;padding:30px;border-radius:10px;box-shadow:0 0 15px rgba(0,0,0,.1);}
+
+/* Notifications */
+.alert{padding:10px;border-radius:6px;margin:10px 0;font-weight:bold;}
+.alert-danger{background:var(--danger);color:#fff;}
+.alert-warning{background:var(--warning);color:#212529;}
+
+/* Mobile */
+.hamburger{display:none;font-size:22px;cursor:pointer;}
+@media(max-width:768px){
+  .sidebar{position:fixed;height:100%;transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .hamburger{display:block;}
+}
+
+/* Charts */
+canvas{background:#fff;border-radius:10px;padding:10px;margin-top:15px;box-shadow:0 0 10px rgba(0,0,0,.05);}
+</style>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- ================== LOGIN ================== -->
+<div class="login" id="loginBox">
+  <h2>🔐 Pharmacy Login</h2>
+  <input id="username" placeholder="Username" value="admin">
+  <input id="password" type="password" placeholder="Password" value="admin">
+  <button onclick="login()">Login</button>
+  <p id="loginMsg"></p>
+</div>
+
+<!-- ================== APP ================== -->
+<div class="app hidden" id="app">
+  <div class="sidebar" id="sidebar">
+    <h2>💊 Pharmacy</h2>
+    <a onclick="show('dashboard')" class="active">Dashboard</a>
+    <a onclick="show('medicines')">Medicines</a>
+    <a onclick="show('inventory')">Inventory</a>
+    <a onclick="show('prescriptions')">Prescriptions</a>
+    <a onclick="show('cart')">E-Commerce</a>
+    <a onclick="logout()">Logout</a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <span class="hamburger" onclick="toggleMenu()">☰</span>
+      <h2 id="pageTitle">Dashboard</h2>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard">
+      <div class="cards">
+        <div class="card"><h3>Total Medicines</h3><p id="statMedicines">0</p></div>
+        <div class="card"><h3>Stock Items</h3><p id="statStock">0</p></div>
+        <div class="card"><h3>Prescriptions</h3><p id="statRx">0</p></div>
+      </div>
+      <div id="alerts"></div>
+      <canvas id="stockChart" height="150"></canvas>
+    </div>
+
+    <!-- MEDICINES -->
+    <div id="medicines" class="hidden">
+      <h3>Medicines</h3>
+      <input id="medName" placeholder="Medicine name">
+      <button onclick="addMedicine()">Add Medicine</button>
+      <table id="medTable"></table>
+    </div>
+
+    <!-- INVENTORY -->
+    <div id="inventory" class="hidden">
+      <h3>Inventory</h3>
+      <table id="invTable"></table>
+    </div>
+
+    <!-- PRESCRIPTIONS -->
+    <div id="prescriptions" class="hidden">
+      <h3>Prescriptions</h3>
+      <table id="rxTable"></table>
+    </div>
+
+    <!-- E-COMMERCE -->
+    <div id="cart" class="hidden">
+      <h3>E-Commerce Cart (Demo)</h3>
+      <input id="cartItem" placeholder="Add Medicine to Cart">
+      <button onclick="addCart()">Add to Cart</button>
+      <ul id="cartList"></ul>
+      <p>Total Items: <span id="cartTotal">0</span></p>
+      <button onclick="checkout()" class="success">Checkout</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================== SCRIPT ================== -->
+<script>
+const API="http://eyesightskillss.test/wp-json/eyesightworks/v1";
+let token=localStorage.getItem("jwt");
+let useMock=false;
+
+/* ===== Mock Data ===== */
+let mock={
+  medicines:[{id:1,name:"Paracetamol"},{id:2,name:"Amoxicillin"},{id:3,name:"Ibuprofen"}],
+  inventory:[{name:"Paracetamol",qty:120},{name:"Amoxicillin",qty:60},{name:"Ibuprofen",qty:15}],
+  prescriptions:[{patient:"John Doe",drug:"Paracetamol"},{patient:"Jane Smith",drug:"Ibuprofen"}],
+  cart:[]
+};
+
+/* ===== INIT ===== */
+if(token) start();
+
+/* ===== AUTH ===== */
+function login(){
+  const u=username.value,p=password.value;
+  if(u && p){
+    // Simulate backend or live API
+    token="demo"; localStorage.setItem("jwt",token);
+    start();
+  } else {
+    loginMsg.innerText="Username & password required";
+  }
+}
+
+function logout(){localStorage.clear(); location.reload();}
+
+/* ===== START APP ===== */
+function start(){loginBox.classList.add("hidden"); app.classList.remove("hidden"); loadAll();}
+
+/* ===== UI ===== */
+function show(id){
+  document.querySelectorAll(".main > div").forEach(d=>d.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  pageTitle.innerText=id.charAt(0).toUpperCase()+id.slice(1);
+}
+function toggleMenu(){sidebar.classList.toggle("open");}
+
+/* ===== LOAD DATA ===== */
+function loadAll(){renderMock(); renderCharts(); renderAlerts();}
+
+/* ===== RENDER MOCK ===== */
+function renderMock(){
+  statMedicines.innerText=mock.medicines.length;
+  statStock.innerText=mock.inventory.reduce((a,b)=>a+b.qty,0);
+  statRx.innerText=mock.prescriptions.length;
+
+  // Sortable tables
+  medTable.innerHTML="<tr><th onclick='sortTable(\"medTable\",0)'>Name ⬍</th></tr>"+mock.medicines.map(m=>`<tr><td>${m.name}</td></tr>`).join("");
+  invTable.innerHTML="<tr><th onclick='sortTable(\"invTable\",0)'>Item ⬍</th><th onclick='sortTable(\"invTable\",1)'>Qty ⬍</th></tr>"+mock.inventory.map(i=>`<tr><td>${i.name}</td><td>${i.qty}</td></tr>`).join("");
+  rxTable.innerHTML="<tr><th onclick='sortTable(\"rxTable\",0)'>Patient ⬍</th><th onclick='sortTable(\"rxTable\",1)'>Drug ⬍</th></tr>"+mock.prescriptions.map(r=>`<tr><td>${r.patient}</td><td>${r.drug}</td></tr>`).join("");
+  cartList.innerHTML=mock.cart.map(c=>`<li>${c} <button onclick='removeCart("${c}")' class='danger'>Remove</button></li>`).join("");
+  cartTotal.innerText=mock.cart.length;
+}
+
+/* ===== CRUD ===== */
+function addMedicine(){mock.medicines.push({id:Date.now(),name:medName.value}); medName.value=""; renderMock();}
+function addCart(){mock.cart.push(cartItem.value); cartItem.value=""; renderMock();}
+function removeCart(item){mock.cart=mock.cart.filter(c=>c!==item); renderMock();}
+function checkout(){alert("Checkout successful! Items: "+mock.cart.length); mock.cart=[]; renderMock();}
+
+/* ===== ALERTS ===== */
+function renderAlerts(){
+  const alerts=document.getElementById("alerts");
+  alerts.innerHTML="";
+  mock.inventory.forEach(i=>{
+    if(i.qty<20){
+      alerts.innerHTML+=`<div class="alert alert-warning">Low Stock: ${i.name} (${i.qty})</div>`;
+    }
+  });
+}
+
+/* ===== CHARTS ===== */
+function renderCharts(){
+  const ctx=document.getElementById("stockChart").getContext("2d");
+  new Chart(ctx,{type:"bar",data:{labels:mock.inventory.map(i=>i.name),datasets:[{label:"Stock Qty",data:mock.inventory.map(i=>i.qty),backgroundColor:mock.inventory.map(()=>"#0d6efd")}]},options:{responsive:true}});
+}
+
+/* ===== SORT TABLE ===== */
+function sortTable(tableId,col){
+  const table=document.getElementById(tableId);
+  let rows=Array.from(table.rows).slice(1);
+  let asc=table.asc=!table.asc;
+  rows.sort((a,b)=>{
+    let valA=a.cells[col].innerText.toLowerCase();
+    let valB=b.cells[col].innerText.toLowerCase();
+    if(!isNaN(valA) && !isNaN(valB)){valA=+valA; valB=+valB;}
+    return valA>valB ? (asc?1:-1) : (asc?-1:1);
+  });
+  rows.forEach(r=>table.appendChild(r));
+}
+</script>
+</body>
+</html>
