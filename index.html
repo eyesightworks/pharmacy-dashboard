@@ -3,49 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hospital Pharmacy – Demo</title>
+<title>Hospital Pharmacy – Senior Portfolio Demo</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root{
-  --primary:#4e73df;
-  --success:#1cc88a;
-  --danger:#e74a3b;
-  --warning:#f6c23e;
-  --info:#36b9cc;
-  --bg:#f8f9fc;
-  --text-dark:#3a3b45;
-  --card-shadow:0 4px 12px rgba(0,0,0,0.1);
+  --primary:#4e73df; --success:#1cc88a; --danger:#e74a3b;
+  --warning:#f6c23e; --info:#36b9cc; --bg:#f8f9fc;
+  --text-dark:#3a3b45; --card-shadow:0 4px 12px rgba(0,0,0,0.1);
+  --bg-dark:#1e1e2f; --text-dark-light:#f0f0f0;
 }
 
-/* General */
+/* Global */
 *{box-sizing:border-box;font-family:'Segoe UI',sans-serif;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text-dark);}
+body{background:var(--bg);color:var(--text-dark);transition:.3s;}
+body.dark{background:var(--bg-dark);color:var(--text-dark-light);}
 .hidden{display:none;}
 button{cursor:pointer;}
 
-/* Layout */
+/* App Layout */
 .app{display:flex;min-height:100vh;}
 .sidebar{
   width:250px;background:#2e3e59;color:white;padding:20px;transition:.3s;
 }
+.sidebar.dark{background:#111827;}
 .sidebar h2{text-align:center;margin-bottom:25px;font-weight:bold;font-size:20px;}
-.sidebar a{
-  display:flex;align-items:center;color:#cfd8dc;text-decoration:none;
-  padding:12px;border-radius:8px;margin-bottom:10px;cursor:pointer;
-  transition:.3s;font-weight:500;position:relative;
-}
+.sidebar a{display:flex;align-items:center;color:#cfd8dc;text-decoration:none;padding:12px;border-radius:8px;margin-bottom:10px;cursor:pointer;transition:.3s;font-weight:500;position:relative;}
 .sidebar a i{margin-right:12px;font-size:18px;}
 .sidebar a.active,.sidebar a:hover{background:var(--primary);color:white;}
-.badge{
-  position:absolute;right:15px;top:50%;transform:translateY(-50%);
-  background:var(--danger);color:white;border-radius:50%;padding:2px 7px;font-size:12px;font-weight:bold;
-}
+.badge{position:absolute;right:15px;top:50%;transform:translateY(-50%);background:var(--danger);color:white;border-radius:50%;padding:2px 7px;font-size:12px;font-weight:bold;}
 .badge.blinking{animation:blink 1s infinite;}
 @keyframes blink{0%,50%,100%{opacity:1;}25%,75%{opacity:0.3;}}
 
-/* Main */
-.main{flex:1;padding:20px;}
+.main{flex:1;padding:20px;transition:.3s;}
+.main.dark{color:var(--text-dark-light);}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
 .hamburger{display:none;font-size:22px;cursor:pointer;}
 @media(max-width:768px){
@@ -57,12 +48,7 @@ button{cursor:pointer;}
 
 /* Cards */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:25px;}
-.card{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:20px;border-radius:12px;
-  box-shadow:var(--card-shadow);transition:.3s;
-  color:white;font-weight:bold;
-}
+.card{display:flex;align-items:center;justify-content:space-between;padding:20px;border-radius:12px;box-shadow:var(--card-shadow);transition:.3s;color:white;font-weight:bold;}
 .card:hover{transform:translateY(-5px);}
 .card i{font-size:32px;margin-right:15px;}
 .card.total{background:linear-gradient(135deg,#4e73df,#224abe);}
@@ -72,11 +58,7 @@ button{cursor:pointer;}
 .card p{font-size:22px;margin:0;}
 
 /* Collapsible */
-.collapsible{
-  background:white;border-radius:8px;padding:14px;margin:12px 0;cursor:pointer;
-  border:1px solid #ddd;font-weight:bold;display:flex;justify-content:space-between;align-items:center;
-  transition:.2s;
-}
+.collapsible{background:white;border-radius:8px;padding:14px;margin:12px 0;cursor:pointer;border:1px solid #ddd;font-weight:bold;display:flex;justify-content:space-between;align-items:center;transition:.2s;}
 .collapsible:hover{background:#f1f3f5;}
 .collapsible:after{content:'+';font-weight:bold;}
 .collapsible.active:after{content:'−';}
@@ -89,40 +71,38 @@ button{cursor:pointer;}
 
 /* Tables */
 table{
-  width:100%;border-collapse:collapse;
-  background:white;margin-top:10px;border-radius:8px;overflow:hidden;
-  box-shadow:0 0 10px rgba(0,0,0,0.05);
+  width:100%;border-collapse:collapse;background:white;margin-top:10px;border-radius:8px;overflow:hidden;box-shadow:0 0 10px rgba(0,0,0,0.05);
 }
+table.dark{background:#2e3e59;color:white;}
 th,td{padding:10px;border-bottom:1px solid #eee;text-align:center;transition:.2s;}
 th{background:#f1f3f5;cursor:pointer;}
 tr:hover{background:#f8f9fc;}
 tr.low-stock{background:#fff3cd;}
+tr.expiring{background:#fffbe0;}
 tr.expired{background:#f8d7da;color:#721c24;}
 input[type=number]{width:60px;padding:4px;border-radius:4px;border:1px solid #ccc;text-align:center;}
 
 /* Buttons */
-button{
-  border:none;border-radius:6px;padding:8px 14px;
-  cursor:pointer;color:white;font-weight:bold;transition:.3s;
-}
+button{border:none;border-radius:6px;padding:8px 14px;cursor:pointer;color:white;font-weight:bold;transition:.3s;}
 button:hover{opacity:.85;}
 button.success{background:var(--success);}
 button.danger{background:var(--danger);}
 button.table-btn{padding:4px 8px;font-size:12px;}
 
 /* Login */
-.login{
-  max-width:400px;margin:80px auto;background:white;padding:30px;
-  border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,0.1);
-  text-align:center;
-}
+.login{max-width:400px;margin:80px auto;background:white;padding:30px;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,0.1);text-align:center;}
 .login input{width:80%;padding:12px;margin:12px 0;border-radius:8px;border:1px solid #ccc;}
 .login button{width:50%;margin-top:15px;}
 
-/* Alerts */
+/* Alerts & Toast */
 .alert{padding:12px;border-radius:8px;margin-top:12px;font-weight:bold;box-shadow:0 3px 8px rgba(0,0,0,0.05);}
 .alert.warn{background:var(--warning);}
 .alert.danger{background:var(--danger);color:white;}
+.toast{position:fixed;bottom:20px;right:20px;background:#333;color:white;padding:12px 18px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.3);opacity:0;transform:translateY(20px);transition:.3s;z-index:10000;}
+.toast.show{opacity:1;transform:translateY(0);}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:10001;display:none;}
+.modal-content{background:white;padding:20px;border-radius:12px;text-align:center;max-width:400px;box-shadow:0 8px 20px rgba(0,0,0,0.2);}
+.modal button{margin:8px;}
 </style>
 </head>
 <body>
@@ -130,9 +110,9 @@ button.table-btn{padding:4px 8px;font-size:12px;}
 <!-- LOGIN -->
 <div id="loginBox" class="login">
   <h2>🔐 Hospital Pharmacy Login</h2>
-  <input id="username" value="admin" placeholder="Username">
-  <input id="password" type="password" value="admin" placeholder="Password">
-  <button id="loginBtn">Login</button>
+  <input id="username" placeholder="Username" aria-label="Username">
+  <input id="password" type="password" placeholder="Password" aria-label="Password">
+  <button id="loginBtn" aria-label="Login Button">Login</button>
   <p id="loginMsg"></p>
 </div>
 
@@ -145,17 +125,17 @@ button.table-btn{padding:4px 8px;font-size:12px;}
     <a onclick="showPage('cart',this)"><i class="fas fa-shopping-cart"></i>Sales Cart</a>
     <a onclick="showPage('sales',this)"><i class="fas fa-chart-line"></i>Sales Report</a>
     <a onclick="logout()"><i class="fas fa-sign-out-alt"></i>Logout</a>
+    <button onclick="toggleTheme()" style="margin-top:20px;width:100%;padding:8px;background:#6c5ce7;">Toggle Light/Dark</button>
   </div>
   <div class="overlay hidden" id="overlay" onclick="toggleMenu()"></div>
 
-  <div class="main">
+  <div class="main" id="mainApp">
     <div class="topbar">
       <span class="hamburger" onclick="toggleMenu()">☰</span>
       <h2 id="pageTitle">Dashboard</h2>
     </div>
 
     <div class="pages">
-
       <!-- DASHBOARD -->
       <div id="dashboard">
         <div class="cards">
@@ -164,18 +144,19 @@ button.table-btn{padding:4px 8px;font-size:12px;}
           <div class="card cart"><i class="fas fa-shopping-cart"></i><div><h3>Cart Items</h3><p id="statCart">0</p></div></div>
           <div class="card alert"><i class="fas fa-exclamation-triangle"></i><div><h3>Alerts</h3><p id="statAlerts">0</p></div></div>
         </div>
-        <div id="alerts"></div>
+        <div id="alerts" aria-live="polite"></div>
         <canvas id="chart" height="140"></canvas>
+        <canvas id="pieChart" height="140" style="margin-top:20px;"></canvas>
       </div>
 
       <!-- MEDICINES -->
       <div id="medicines" class="hidden">
         <div class="collapsible">Add Medicine</div>
         <div class="content-collapsible">
-          <input id="medName" placeholder="Medicine name">
-          <input id="medQty" type="number" placeholder="Quantity">
-          <input id="medPrice" type="number" placeholder="Price per unit">
-          <input id="medExp" type="date">
+          <input id="medName" placeholder="Medicine name" aria-label="Medicine Name">
+          <input id="medQty" type="number" placeholder="Quantity" aria-label="Quantity">
+          <input id="medPrice" type="number" placeholder="Price per unit" aria-label="Price per unit">
+          <input id="medExp" type="date" aria-label="Expiry Date" value="2036-01-01">
           <button id="addMedBtn">Add Medicine</button>
         </div>
 
@@ -184,11 +165,20 @@ button.table-btn{padding:4px 8px;font-size:12px;}
           <div class="filters">
             <label><input type="radio" name="filter" value="all" checked onchange="render()">All</label>
             <label><input type="radio" name="filter" value="low" onchange="render()">Low Stock</label>
+            <label><input type="radio" name="filter" value="expiring" onchange="render()">Expiring Soon</label>
             <label><input type="radio" name="filter" value="expired" onchange="render()">Expired</label>
           </div>
-          <input id="search" placeholder="Search..." oninput="render()">
+          <input id="search" placeholder="Search..." oninput="render()" aria-label="Search Medicines">
           <table>
-            <thead><tr><th>Name</th><th>Qty</th><th>Price</th><th>Expiry</th><th>Action</th></tr></thead>
+            <thead>
+              <tr>
+                <th onclick="sortTable('name')">Name</th>
+                <th onclick="sortTable('qty')">Qty</th>
+                <th onclick="sortTable('price')">Price</th>
+                <th onclick="sortTable('exp')">Expiry</th>
+                <th>Action</th>
+              </tr>
+            </thead>
             <tbody id="medTable"></tbody>
           </table>
         </div>
@@ -203,7 +193,7 @@ button.table-btn{padding:4px 8px;font-size:12px;}
         </table>
         <p>Total Items: <b id="cartTotal">0</b></p>
         <p>Total Price: <b id="cartPrice">0</b></p>
-        <button class="success" onclick="checkout()">Checkout</button>
+        <button class="success" onclick="confirmCheckout()">Checkout</button>
       </div>
 
       <!-- SALES REPORT -->
@@ -211,159 +201,75 @@ button.table-btn{padding:4px 8px;font-size:12px;}
         <h3>Sales Report</h3>
         <canvas id="salesChart" height="140"></canvas>
       </div>
-
     </div>
   </div>
 </div>
 
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Modal -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <p id="modalText"></p>
+    <button id="modalYes" class="success">Yes</button>
+    <button id="modalNo" class="danger">No</button>
+  </div>
+</div>
+
 <script>
-// LOGIN
+// ========== STATE ==========
+let state = JSON.parse(localStorage.getItem("hospitalDemo")) || {
+  meds: [{name:"Paracetamol",qty:50,price:50,exp:"2036-01-01"}],
+  cart: [], sales: [], undoStack: [], redoStack: []
+};
+let sortConfig = {key:'',asc:true};
+
+// ========== TOAST ==========
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2000);
+}
+
+// ========== THEME ==========
+if(localStorage.getItem("theme")==="dark") toggleTheme();
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+  sidebar.classList.toggle("dark");
+  mainApp.classList.toggle("dark");
+  localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light");
+  showToast("Theme toggled");
+}
+
+// ========== LOGIN ==========
+const username=document.getElementById("username");
+const password=document.getElementById("password");
+const loginMsg=document.getElementById("loginMsg");
 document.getElementById("loginBtn").addEventListener("click",()=>{
   if(username.value==="admin" && password.value==="admin"){
-    localStorage.setItem("jwt","demo");
-    start();
-  } else loginMsg.textContent="Use admin/admin";
+    localStorage.setItem("jwt","admin"); start();
+  } else loginMsg.textContent="Incorrect login. Use admin/admin.";
 });
-function logout(){localStorage.clear();location.reload();}
-if(localStorage.getItem("jwt")) start();
-function start(){loginBox.classList.add("hidden");app.classList.remove("hidden");render();}
+if(localStorage.getItem("jwt")==="admin") start();
+function start(){loginBox.classList.add("hidden"); app.classList.remove("hidden"); render();}
+function logout(){localStorage.clear(); location.reload();}
 
-// Sidebar toggle
-function toggleMenu(){sidebar.classList.toggle("open");overlay.classList.toggle("hidden");}
-
-// Navigation
+// ========== SIDEBAR ==========
+function toggleMenu(){sidebar.classList.toggle("open"); overlay.classList.toggle("hidden");}
 function showPage(id,el){
   document.querySelectorAll(".pages > div").forEach(p=>p.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
   document.querySelectorAll(".sidebar a").forEach(a=>a.classList.remove("active"));
   el.classList.add("active");
   pageTitle.textContent=id.charAt(0).toUpperCase()+id.slice(1);
-  sidebar.classList.remove("open");
-  overlay.classList.add("hidden");
+  sidebar.classList.remove("open"); overlay.classList.add("hidden");
 }
 
-// Collapsible
+// ========= COLLAPSIBLE ==========
 document.querySelectorAll(".collapsible").forEach(el=>el.addEventListener("click",()=>{
-  el.classList.toggle("active");
-  el.nextElementSibling.classList.toggle("show");
+  el.classList.toggle("active"); el.nextElementSibling.classList.toggle("show");
 }));
 
-// STATE
-let state=JSON.parse(localStorage.getItem("hospitalDemo"))||{
-  meds:[{name:"Paracetamol",qty:50,price:50,exp:"2026-01-01"},{name:"Ibuprofen",qty:15,price:100,exp:"2025-05-01"}],
-  cart:[],
-  sales:[]
-};
-function save(){localStorage.setItem("hospitalDemo",JSON.stringify(state));}
-
-// ADD MEDICINE
-document.getElementById("addMedBtn").addEventListener("click",()=>{
-  const n=medName.value.trim(),q=+medQty.value,p=+medPrice.value,e=medExp.value;
-  if(!n||!q||!p||!e){alert("Fill all fields");return;}
-  state.meds.push({name:n,qty:q,price:p,exp:e});
-  medName.value=medQty.value=medPrice.value=medExp.value="";
-  render();
-});
-
-// RENDER
-let chart,salesChart;
-function renderMedicines(){
-  const filter=document.querySelector('input[name="filter"]:checked')?.value||"all";
-  const query=search.value.toLowerCase();
-  medTable.innerHTML=state.meds.filter(m=>{
-    if(filter==="low"&&m.qty>=20)return false;
-    if(filter==="expired"&&new Date(m.exp)>=new Date())return false;
-    if(!m.name.toLowerCase().includes(query))return false;
-    return true;
-  }).map((m,i)=>`<tr class="${m.qty<20?'low-stock':''} ${new Date(m.exp)<new Date()?'expired':''}">
-    <td>${m.name}</td>
-    <td><input type="number" min="1" value="${m.qty}" onchange="updateMedQty(${i},this.value)"></td>
-    <td>${m.price}</td>
-    <td>${m.exp}</td>
-    <td><button class="table-btn danger" onclick="deleteMed(${i})">Delete</button></td>
-  </tr>`).join("");
-}
-function updateMedQty(i,newQty){
-  newQty=parseInt(newQty);
-  if(isNaN(newQty)||newQty<=0){alert("Qty must be positive");renderMedicines();return;}
-  state.meds[i].qty=newQty;renderMedicines();renderCart();renderAlerts();
-}
-function deleteMed(i){state.meds.splice(i,1);render();}
-
-function renderCart(){
-  let totalPrice=0;
-  cartTable.innerHTML=state.cart.map((c,i)=>{
-    const subtotal=c.qty*c.price; totalPrice+=subtotal;
-    return `<tr>
-      <td>${c.name}</td>
-      <td><input type="number" min="1" value="${c.qty}" onchange="updateCartQty(${i},this.value)"></td>
-      <td>${c.price}</td>
-      <td>${subtotal}</td>
-      <td><button class="table-btn danger" onclick="removeCart(${i})">Remove</button></td>
-    </tr>`;
-  }).join("");
-  cartTotal.textContent=state.cart.length;
-  cartPrice.textContent=totalPrice;
-}
-function updateCartQty(i,newQty){
-  newQty=parseInt(newQty);
-  if(isNaN(newQty)||newQty<=0){alert("Qty must be positive");renderCart();return;}
-  const item=state.cart[i];
-  const stock=state.meds.find(m=>m.name===item.name);
-  const maxQty=stock.qty+item.qty;
-  if(newQty>maxQty){alert(`Cannot exceed stock (${maxQty})`);renderCart();return;}
-  stock.qty+=item.qty; item.qty=newQty; stock.qty-=newQty;
-  renderCart(); renderAlerts(); renderMedicines();
-}
-function removeCart(i){state.cart.splice(i,1); render();}
-function checkout(){
-  if(state.cart.length===0){alert("Cart empty");return;}
-  state.cart.forEach(c=>state.sales.push({...c,date:new Date().toISOString()}));
-  state.cart=[];alert("Checkout successful"); render();
-}
-
-// Alerts
-function renderAlerts(){
-  alerts.innerHTML=""; let urgent=0;
-  const today=new Date();
-  state.meds.forEach(m=>{
-    const days=(new Date(m.exp)-today)/(1000*60*60*24);
-    if(m.qty<20){urgent++; alerts.innerHTML+=`<div class="alert warn">Low stock: ${m.name}</div>`;}
-    if(days<30){urgent++; alerts.innerHTML+=`<div class="alert danger">Expiring soon: ${m.name}</div>`;}
-  });
-  statAlerts.textContent=urgent;
-  const badgeMeds=document.getElementById("badgeMeds");
-  if(urgent>0){badgeMeds.textContent=urgent;badgeMeds.classList.add("blinking");badgeMeds.classList.remove("hidden");} 
-  else{badgeMeds.classList.add("hidden");badgeMeds.classList.remove("blinking");}
-}
-
-// Charts
-function renderChart(){
-  const ctx=document.getElementById("chart");
-  if(chart) chart.destroy();
-  chart=new Chart(ctx,{type:"bar",
-    data:{labels:state.meds.map(m=>m.name),datasets:[{label:"Stock",data:state.meds.map(m=>m.qty),backgroundColor:"#4e73df"}]},
-    options:{responsive:true,animation:{duration:500}}});
-}
-function renderSalesChart(){
-  const ctx=document.getElementById("salesChart");
-  if(!ctx) return;
-  if(salesChart) salesChart.destroy();
-  const report={};
-  state.sales.forEach(s=>{report[s.name]=(report[s.name]||0)+s.qty;});
-  salesChart=new Chart(ctx,{
-    type:"bar",
-    data:{labels:Object.keys(report),datasets:[{label:"Total Sold",data:Object.values(report),backgroundColor:"#1cc88a"}]},
-    options:{responsive:true,animation:{duration:500}}});
-}
-
-// Master render
-function render(){save();
-  statMed.textContent=state.meds.length;
-  statStock.textContent=state.meds.reduce((a,b)=>a+b.qty,0);
-  statCart.textContent=state.cart.reduce((a,b)=>a+b.qty,0);
-  renderMedicines(); renderCart(); renderAlerts(); renderChart(); renderSalesChart();
-}
-</script>
-</body>
-</html>
+// ========= JS LOGIC ==========
