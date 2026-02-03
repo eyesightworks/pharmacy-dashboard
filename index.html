@@ -3,287 +3,273 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hospital Pharmacy Pro – v5</title>
+<title>Hospital Pharmacy</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-:root {
-  --bg:#0f172a; --panel:#111827; --card:#1f2933; --text:#e5e7eb; --muted:#9ca3af;
-  --accent:#22c55e; --danger:#ef4444; --warning:#f59e0b;
+:root{
+  --primary:#4e73df; --success:#1cc88a; --danger:#e74a3b;
+  --warning:#f6c23e; --info:#36b9cc; --bg:#f8f9fc;
+  --text-dark:#3a3b45; --card-shadow:0 4px 12px rgba(0,0,0,0.1);
+  --bg-dark:#1e1e2f; --text-dark-light:#f0f0f0;
 }
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif;}
-body{background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+/* Global */
+*{box-sizing:border-box;font-family:'Segoe UI',sans-serif;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text-dark);transition:.3s;}
+body.dark{background:var(--bg-dark);color:var(--text-dark-light);}
 .hidden{display:none;}
-input,select{padding:.5rem;margin:.3rem 0;background:#020617;border:1px solid #374151;color:var(--text);}
-button{padding:.5rem .8rem;border:none;cursor:pointer;}
-button.action{background:var(--accent);color:#052e16;}
-button.danger{background:var(--danger);color:#fff;}
-.card{background:var(--card);padding:1rem;border-radius:8px;margin-bottom:1rem;}
-table{width:100%;border-collapse:collapse;}
-th,td{padding:.5rem;border-bottom:1px solid #374151;text-align:left;}
-th{color:var(--muted);}
-aside{width:260px;background:var(--panel);padding:1rem;transition:.3s;}
-aside h2{margin-bottom:1rem;}
-aside button{width:100%;margin-bottom:.5rem;text-align:left;color:var(--text);background:var(--card);}
-aside button.active{background:var(--accent);color:#052e16;display:flex;justify-content:space-between;align-items:center;}
-main{flex:1;padding:1rem;overflow-y:auto;}
-.hamburger{display:none;font-size:1.5rem;cursor:pointer;margin-bottom:1rem;}
-@media(max-width:768px){aside{position:fixed;height:100%;transform:translateX(-100%);z-index:1000;}
-aside.open{transform:translateX(0);}
-.hamburger{display:block;}
-.overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:900;}
-.overlay.show{display:block;}
+button{cursor:pointer;}
+
+/* App Layout */
+.app{display:flex;min-height:100vh;}
+.sidebar{
+  width:250px;background:#2e3e59;color:white;padding:20px;transition:.3s;
 }
-.login{margin:auto;background:var(--card);padding:2rem;border-radius:12px;width:90%;max-width:400px;text-align:center;}
-.login input{width:80%;margin:0.5rem 0;}
-.login button{width:50%;margin-top:1rem;}
+.sidebar.dark{background:#111827;}
+.sidebar h2{text-align:center;margin-bottom:25px;font-weight:bold;font-size:20px;}
+.sidebar a{display:flex;align-items:center;color:#cfd8dc;text-decoration:none;padding:12px;border-radius:8px;margin-bottom:10px;cursor:pointer;transition:.3s;font-weight:500;position:relative;}
+.sidebar a i{margin-right:12px;font-size:18px;}
+.sidebar a.active,.sidebar a:hover{background:var(--primary);color:white;}
+.badge{position:absolute;right:15px;top:50%;transform:translateY(-50%);background:var(--danger);color:white;border-radius:50%;padding:2px 7px;font-size:12px;font-weight:bold;}
+.badge.blinking{animation:blink 1s infinite;}
+@keyframes blink{0%,50%,100%{opacity:1;}25%,75%{opacity:0.3;}}
+
+.main{flex:1;padding:20px;transition:.3s;}
+.main.dark{color:var(--text-dark-light);}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
+.hamburger{display:none;font-size:22px;cursor:pointer;}
+@media(max-width:768px){
+  .sidebar{position:fixed;height:100%;transform:translateX(-100%);z-index:1000;}
+  .sidebar.open{transform:translateX(0);}
+  .hamburger{display:block;}
+  .overlay{display:block;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:900;display:none;}
+}
+
+/* Cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:25px;}
+.card{display:flex;align-items:center;justify-content:space-between;padding:20px;border-radius:12px;box-shadow:var(--card-shadow);transition:.3s;color:white;font-weight:bold;}
+.card:hover{transform:translateY(-5px);}
+.card i{font-size:32px;margin-right:15px;}
+.card.total{background:linear-gradient(135deg,#4e73df,#224abe);}
+.card.stock{background:linear-gradient(135deg,#36b9cc,#1da6b7);}
+.card.cart{background:linear-gradient(135deg,#1cc88a,#16a085);}
+.card.alert{background:linear-gradient(135deg,#e74a3b,#c0392b);}
+.card p{font-size:22px;margin:0;}
+
+/* Collapsible */
+.collapsible{background:white;border-radius:8px;padding:14px;margin:12px 0;cursor:pointer;border:1px solid #ddd;font-weight:bold;display:flex;justify-content:space-between;align-items:center;transition:.2s;}
+.collapsible:hover{background:#f1f3f5;}
+.collapsible:after{content:'+';font-weight:bold;}
+.collapsible.active:after{content:'−';}
+.content-collapsible{padding:10px 0;display:none;}
+.content-collapsible.show{display:block;}
+
+/* Filters */
+.filters{margin:10px 0;display:flex;gap:12px;flex-wrap:wrap;}
+.filters label{display:flex;align-items:center;gap:5px;font-weight:bold;}
+
+/* Tables */
+table{
+  width:100%;border-collapse:collapse;background:white;margin-top:10px;border-radius:8px;overflow:hidden;box-shadow:0 0 10px rgba(0,0,0,0.05);
+}
+table.dark{background:#2e3e59;color:white;}
+th,td{padding:10px;border-bottom:1px solid #eee;text-align:center;transition:.2s;}
+th{background:#f1f3f5;cursor:pointer;}
+tr:hover{background:#f8f9fc;}
+tr.low-stock{background:#fff3cd;}
+tr.expiring{background:#fffbe0;}
+tr.expired{background:#f8d7da;color:#721c24;}
+input[type=number]{width:60px;padding:4px;border-radius:4px;border:1px solid #ccc;text-align:center;}
+
+/* Buttons */
+button{border:none;border-radius:6px;padding:8px 14px;cursor:pointer;color:white;font-weight:bold;transition:.3s;}
+button:hover{opacity:.85;}
+button.success{background:var(--success);}
+button.danger{background:var(--danger);}
+button.table-btn{padding:4px 8px;font-size:12px;}
+
+/* Login */
+.login{max-width:400px;margin:80px auto;background:white;padding:30px;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,0.1);text-align:center;}
+.login input{width:80%;padding:12px;margin:12px 0;border-radius:8px;border:1px solid #ccc;}
+.login button{width:50%;margin-top:15px;}
+
+/* Alerts & Toast */
+.alert{padding:12px;border-radius:8px;margin-top:12px;font-weight:bold;box-shadow:0 3px 8px rgba(0,0,0,0.05);}
+.alert.warn{background:var(--warning);}
+.alert.danger{background:var(--danger);color:white;}
+.toast{position:fixed;bottom:20px;right:20px;background:#333;color:white;padding:12px 18px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.3);opacity:0;transform:translateY(20px);transition:.3s;z-index:10000;}
+.toast.show{opacity:1;transform:translateY(0);}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:10001;display:none;}
+.modal-content{background:white;padding:20px;border-radius:12px;text-align:center;max-width:400px;box-shadow:0 8px 20px rgba(0,0,0,0.2);}
+.modal button{margin:8px;}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
 <div id="loginBox" class="login">
-  <h2>Hospital Pharmacy Login</h2>
-  <input id="username" placeholder="Username"><br>
-  <input id="password" type="password" placeholder="Password"><br>
-  <button id="loginBtn">Login</button>
+  <h2>🔐 Hospital Pharmacy Login</h2>
+  <input id="username" placeholder="Username" aria-label="Username">
+  <input id="password" type="password" placeholder="Password" aria-label="Password">
+  <button id="loginBtn" aria-label="Login Button">Login</button>
   <p id="loginMsg"></p>
 </div>
 
 <!-- APP -->
-<aside id="sidebar" class="hidden">
-  <h2>🏥 Hospital Pharmacy Pro</h2>
-  <button data-view="dashboard" class="active">Dashboard</button>
-  <button data-view="inventory">Inventory</button>
-  <button data-view="sales">Sales</button>
-  <button data-view="activity">Activity Log</button>
-  <button id="backupBtn">Backup</button>
-  <button id="restoreBtn">Restore</button>
-</aside>
+<div id="app" class="app hidden">
+  <div class="sidebar" id="sidebar">
+    <h2>🏥 Hospital Pharmacy</h2>
+    <a class="active" onclick="showPage('dashboard',this)"><i class="fas fa-tachometer-alt"></i>Dashboard<span id="badgeDashboard" class="badge hidden"></span></a>
+    <a onclick="showPage('medicines',this)"><i class="fas fa-pills"></i>Medicines<span id="badgeMeds" class="badge hidden"></span></a>
+    <a onclick="showPage('cart',this)"><i class="fas fa-shopping-cart"></i>Sales Cart</a>
+    <a onclick="showPage('sales',this)"><i class="fas fa-chart-line"></i>Sales Report</a>
+    <a onclick="logout()"><i class="fas fa-sign-out-alt"></i>Logout</a>
+    <button onclick="toggleTheme()" style="margin-top:20px;width:100%;padding:8px;background:#6c5ce7;">Toggle Light/Dark</button>
+  </div>
+  <div class="overlay hidden" id="overlay" onclick="toggleMenu()"></div>
 
-<div class="overlay" id="overlay"></div>
-
-<main id="mainApp" class="hidden">
-  <span class="hamburger" id="hamburger">☰</span>
-
-  <section id="dashboard" class="view">
-    <div class="card">
-      <h3>Overview</h3>
-      <p>Total Medicines: <span id="statMedicines">0</span></p>
-      <p>Total Sales: <span id="statSales">0</span></p>
+  <div class="main" id="mainApp">
+    <div class="topbar">
+      <span class="hamburger" onclick="toggleMenu()">☰</span>
+      <h2 id="pageTitle">Dashboard</h2>
     </div>
-    <canvas id="salesChart"></canvas>
-  </section>
 
-  <section id="inventory" class="view hidden">
-    <div class="card">
-      <h3>Add Medicine</h3>
-      <input id="medName" placeholder="Name">
-      <input id="medQty" type="number" placeholder="Qty">
-      <input id="medExp" type="date">
-      <button class="action" id="addMed">Add</button>
-    </div>
-    <div class="card">
-      <h3>Inventory</h3>
-      <table>
-        <thead><tr><th>Name</th><th>Qty</th><th>Expiry</th><th></th></tr></thead>
-        <tbody id="inventoryTable"></tbody>
-      </table>
-    </div>
-  </section>
+    <div class="pages">
+      <!-- DASHBOARD -->
+      <div id="dashboard">
+        <div class="cards">
+          <div class="card total"><i class="fas fa-pills"></i><div><h3>Total Medicines</h3><p id="statMed">0</p></div></div>
+          <div class="card stock"><i class="fas fa-boxes"></i><div><h3>Total Stock</h3><p id="statStock">0</p></div></div>
+          <div class="card cart"><i class="fas fa-shopping-cart"></i><div><h3>Cart Items</h3><p id="statCart">0</p></div></div>
+          <div class="card alert"><i class="fas fa-exclamation-triangle"></i><div><h3>Alerts</h3><p id="statAlerts">0</p></div></div>
+        </div>
+        <div id="alerts" aria-live="polite"></div>
+        <canvas id="chart" height="140"></canvas>
+        <canvas id="pieChart" height="140" style="margin-top:20px;"></canvas>
+      </div>
 
-  <section id="sales" class="view hidden">
-    <div class="card">
-      <h3>Cart</h3>
-      <select id="saleSelect"></select>
-      <input id="saleQty" type="number" value="1">
-      <button class="action" id="addToCart">Add</button>
-      <table>
-        <thead><tr><th>Item</th><th>Qty</th></tr></thead>
-        <tbody id="cartTable"></tbody>
-      </table>
-      <button class="action" id="checkout">Checkout</button>
-    </div>
-  </section>
+      <!-- MEDICINES -->
+      <div id="medicines" class="hidden">
+        <div class="collapsible">Add Medicine</div>
+        <div class="content-collapsible">
+          <input id="medName" placeholder="Medicine name" aria-label="Medicine Name">
+          <input id="medQty" type="number" placeholder="Quantity" aria-label="Quantity">
+          <input id="medPrice" type="number" placeholder="Price per unit" aria-label="Price per unit">
+          <input id="medExp" type="date" aria-label="Expiry Date" value="2036-01-01">
+          <button id="addMedBtn">Add Medicine</button>
+        </div>
 
-  <section id="activity" class="view hidden">
-    <div class="card">
-      <h3>Activity Log</h3>
-      <ul id="activityList"></ul>
+        <div class="collapsible">Search / Medicine Table</div>
+        <div class="content-collapsible">
+          <div class="filters">
+            <label><input type="radio" name="filter" value="all" checked onchange="render()">All</label>
+            <label><input type="radio" name="filter" value="low" onchange="render()">Low Stock</label>
+            <label><input type="radio" name="filter" value="expiring" onchange="render()">Expiring Soon</label>
+            <label><input type="radio" name="filter" value="expired" onchange="render()">Expired</label>
+          </div>
+          <input id="search" placeholder="Search..." oninput="render()" aria-label="Search Medicines">
+          <table>
+            <thead>
+              <tr>
+                <th onclick="sortTable('name')">Name</th>
+                <th onclick="sortTable('qty')">Qty</th>
+                <th onclick="sortTable('price')">Price</th>
+                <th onclick="sortTable('exp')">Expiry</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="medTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CART -->
+      <div id="cart" class="hidden">
+        <h3>Sales Cart</h3>
+        <table>
+          <thead><tr><th>Name</th><th>Qty</th><th>Price</th><th>Subtotal</th><th>Action</th></tr></thead>
+          <tbody id="cartTable"></tbody>
+        </table>
+        <p>Total Items: <b id="cartTotal">0</b></p>
+        <p>Total Price: <b id="cartPrice">0</b></p>
+        <button class="success" onclick="confirmCheckout()">Checkout</button>
+      </div>
+
+      <!-- SALES REPORT -->
+      <div id="sales" class="hidden">
+        <h3>Sales Report</h3>
+        <canvas id="salesChart" height="140"></canvas>
+      </div>
     </div>
-  </section>
-</main>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Modal -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <p id="modalText"></p>
+    <button id="modalYes" class="success">Yes</button>
+    <button id="modalNo" class="danger">No</button>
+  </div>
+</div>
 
 <script>
-// ========== LOGIN ==========
-const loginBox = document.getElementById('loginBox');
-const mainApp = document.getElementById('mainApp');
-const sidebar = document.getElementById('sidebar');
-const loginMsg = document.getElementById('loginMsg');
-
-document.getElementById('loginBtn').onclick = ()=>{
-  const user = document.getElementById('username').value.trim();
-  const pass = document.getElementById('password').value.trim();
-  if(user==='admin' && pass==='admin'){
-    loginBox.classList.add('hidden');
-    sidebar.classList.remove('hidden');
-    mainApp.classList.remove('hidden');
-    initApp();
-  }else loginMsg.textContent = "Invalid credentials! Use admin/admin";
-};
-
 // ========== STATE ==========
-const state = {
-  inventory: JSON.parse(localStorage.getItem('inventory')||'[]'),
-  salesLog: JSON.parse(localStorage.getItem('salesLog')||'[]'),
-  activity: JSON.parse(localStorage.getItem('activity')||'[]'),
-  cart: [],
-  undoStack: [], redoStack:[]
+let state = JSON.parse(localStorage.getItem("hospitalDemo")) || {
+  meds: [{name:"Paracetamol",qty:50,price:50,exp:"2036-01-01"}],
+  cart: [], sales: [], undoStack: [], redoStack: []
 };
+let sortConfig = {key:'',asc:true};
 
-function save(){ 
-  localStorage.setItem('inventory',JSON.stringify(state.inventory));
-  localStorage.setItem('salesLog',JSON.stringify(state.salesLog));
-  localStorage.setItem('activity',JSON.stringify(state.activity));
+// ========== TOAST ==========
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2000);
 }
 
-// ========== APP INIT ==========
-function initApp(){
-  setupNav();
-  renderInventory();
-  renderCart();
-  renderActivity();
-  renderSalesChart();
-  updateDashboard();
+// ========== THEME ==========
+if(localStorage.getItem("theme")==="dark") toggleTheme();
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+  sidebar.classList.toggle("dark");
+  mainApp.classList.toggle("dark");
+  localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light");
+  showToast("Theme toggled");
 }
 
-// ========== NAVIGATION ==========
-const hamburger = document.getElementById('hamburger');
-const overlay = document.getElementById('overlay');
+// ========== LOGIN ==========
+const username=document.getElementById("username");
+const password=document.getElementById("password");
+const loginMsg=document.getElementById("loginMsg");
+document.getElementById("loginBtn").addEventListener("click",()=>{
+  if(username.value==="admin" && password.value==="admin"){
+    localStorage.setItem("jwt","admin"); start();
+  } else loginMsg.textContent="Incorrect login. Use admin/admin.";
+});
+if(localStorage.getItem("jwt")==="admin") start();
+function start(){loginBox.classList.add("hidden"); app.classList.remove("hidden"); render();}
+function logout(){localStorage.clear(); location.reload();}
 
-hamburger.onclick = ()=>{ sidebar.classList.toggle('open'); overlay.classList.toggle('show'); };
-overlay.onclick = ()=>{ sidebar.classList.remove('open'); overlay.classList.remove('show'); };
-
-function setupNav(){
-  document.querySelectorAll('aside button[data-view]').forEach(btn=>{
-    btn.onclick = ()=>{
-      document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
-      document.getElementById(btn.dataset.view).classList.remove('hidden');
-      document.querySelectorAll('aside button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      sidebar.classList.remove('open'); overlay.classList.remove('show');
-    };
-  });
+// ========== SIDEBAR ==========
+function toggleMenu(){sidebar.classList.toggle("open"); overlay.classList.toggle("hidden");}
+function showPage(id,el){
+  document.querySelectorAll(".pages > div").forEach(p=>p.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  document.querySelectorAll(".sidebar a").forEach(a=>a.classList.remove("active"));
+  el.classList.add("active");
+  pageTitle.textContent=id.charAt(0).toUpperCase()+id.slice(1);
+  sidebar.classList.remove("open"); overlay.classList.add("hidden");
 }
 
-// ========== INVENTORY ==========
-const inventoryTable = document.getElementById('inventoryTable');
+// ========= COLLAPSIBLE ==========
+document.querySelectorAll(".collapsible").forEach(el=>el.addEventListener("click",()=>{
+  el.classList.toggle("active"); el.nextElementSibling.classList.toggle("show");
+}));
 
-function saveState(){
-  state.undoStack.push(JSON.stringify({inventory:state.inventory,salesLog:state.salesLog}));
-  if(state.undoStack.length>20) state.undoStack.shift();
-  state.redoStack=[];
-}
-
-function renderInventory(){
-  inventoryTable.innerHTML='';
-  state.inventory.forEach((m,i)=>{
-    const expired = new Date(m.expiry)<new Date();
-    const tr=document.createElement('tr');
-    tr.innerHTML = `<td>${m.name}</td><td>${m.qty}</td><td class="${expired?'danger':''}">${m.expiry}</td>
-      <td><button class="danger" onclick="deleteMed(${i})">X</button></td>`;
-    inventoryTable.appendChild(tr);
-  });
-  renderSalesSelect(); updateDashboard();
-}
-
-function deleteMed(i){
-  saveState();
-  log(`Deleted medicine: ${state.inventory[i].name}`);
-  state.inventory.splice(i,1);
-  save(); renderInventory();
-}
-
-document.getElementById('addMed').onclick = ()=>{
-  const name=medName.value.trim(), qty=+medQty.value, exp=medExp.value;
-  if(!name||qty<=0||!exp) return alert('Invalid input');
-  if(new Date(exp)<new Date()) return alert('Cannot add expired medicine');
-  saveState();
-  state.inventory.push({name,qty,expiry:exp});
-  log(`Added medicine: ${name}`);
-  save(); renderInventory();
-};
-
-// ========== SALES ==========
-const saleSelect = document.getElementById('saleSelect');
-const cartTable = document.getElementById('cartTable');
-
-function renderSalesSelect(){
-  saleSelect.innerHTML='';
-  state.inventory.forEach((m,i)=>{
-    if(m.qty>0 && new Date(m.expiry)>=new Date()){
-      const o=document.createElement('option'); o.value=i; o.textContent=m.name;
-      saleSelect.appendChild(o);
-    }
-  });
-}
-
-function renderCart(){
-  cartTable.innerHTML='';
-  state.cart.forEach(c=>{
-    const tr=document.createElement('tr'); tr.innerHTML=`<td>${c.name}</td><td>${c.qty}</td>`; cartTable.appendChild(tr);
-  });
-}
-
-document.getElementById('addToCart').onclick = ()=>{
-  const idx=+saleSelect.value, qty=+saleQty.value, med=state.inventory[idx];
-  if(!med||qty<=0||qty>med.qty) return alert('Invalid quantity');
-  state.cart.push({name:med.name,qty});
-  renderCart();
-};
-
-document.getElementById('checkout').onclick = ()=>{
-  if(!state.cart.length) return alert('Cart empty');
-  saveState();
-  state.cart.forEach(c=>{ const med=state.inventory.find(m=>m.name===c.name); med.qty-=c.qty; });
-  state.salesLog.push({id:crypto.randomUUID(), items:[...state.cart], time:new Date().toLocaleString()});
-  log('Checkout completed');
-  state.cart=[]; save(); renderInventory(); renderCart(); renderSalesChart();
-};
-
-// ========== DASHBOARD ==========
-const statMedicines = document.getElementById('statMedicines');
-const statSales = document.getElementById('statSales');
-const ctx = document.getElementById('salesChart').getContext('2d');
-
-let salesChart = new Chart(ctx,{type:'bar',data:{labels:[],datasets:[{label:'Qty Sold',data:[],backgroundColor:'#22c55e'}]},options:{responsive:true,scales:{y:{beginAtZero:true}}}});
-
-function renderSalesChart(){
-  const labels = state.salesLog.map((s,i)=>`Sale ${i+1}`);
-  const data = state.salesLog.map(s=>s.items.reduce((a,b)=>a+b.qty,0));
-  salesChart.data.labels = labels; salesChart.data.datasets[0].data = data; salesChart.update();
-}
-
-function updateDashboard(){ statMedicines.textContent=state.inventory.length; statSales.textContent=state.salesLog.length; }
-
-// ========== ACTIVITY ==========
-function log(msg){ state.activity.unshift({msg,time:new Date().toLocaleString()}); if(state.activity.length>100) state.activity.pop(); save(); renderActivity(); }
-function renderActivity(){ const activityList=document.getElementById('activityList'); activityList.innerHTML=''; state.activity.forEach(a=>{ const li=document.createElement('li'); li.textContent=`${a.time} — ${a.msg}`; activityList.appendChild(li); }); }
-
-// ========== BACKUP / RESTORE ==========
-document.getElementById('backupBtn').onclick = ()=>{
-  const blob=new Blob([JSON.stringify(state)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='pharmacy-backup.json'; a.click(); log('Backup exported');
-};
-
-document.getElementById('restoreBtn').onclick = ()=>{
-  const input=document.createElement('input'); input.type='file'; input.accept='application/json';
-  input.onchange=(e)=>{ const file=e.target.files[0]; const reader=new FileReader(); reader.onload=()=>{
-    const restored=JSON.parse(reader.result);
-    state.inventory=restored.inventory||[]; state.salesLog=restored.salesLog||[]; state.activity=restored.activity||[];
-    save(); renderInventory(); renderSalesChart(); renderActivity(); log('Backup restored');
-  }; reader.readAsText(file); }; input.click();
-};
-</script>
-</body>
-</html>
+// ========= JS LOGIC ==========
